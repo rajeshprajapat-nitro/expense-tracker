@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FinTrack — Expense Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-grid"></div>
+<div class="bg-blob b1"></div>
+<div class="bg-blob b2"></div>
+
+<!-- App Shell -->
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">FinTrack</span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="dashboard">
+        <span class="nav-icon">▦</span> Dashboard
+      </button>
+      <button class="nav-btn" data-tab="transactions">
+        <span class="nav-icon">⇄</span> Transactions
+      </button>
+      <button class="nav-btn" data-tab="analytics">
+        <span class="nav-icon">◎</span> Analytics
+      </button>
+      <button class="nav-btn" data-tab="budget">
+        <span class="nav-icon">◷</span> Budget
+      </button>
+    </nav>
+
+    <div class="sidebar-summary">
+      <div class="ss-label">Net Balance</div>
+      <div class="ss-amount" id="sidebar-balance">₹0</div>
+      <div class="ss-bar">
+        <div class="ss-fill" id="sidebar-bar"></div>
+      </div>
+    </div>
+
+    <button class="export-btn" id="export-btn">⬇ Export CSV</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- ── DASHBOARD TAB ── -->
+    <section class="tab active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-sub" id="greeting">Good morning 👋</p>
+        </div>
+        <button class="btn-primary" id="open-modal-btn">+ Add Transaction</button>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-grid">
+        <div class="stat-card income-card">
+          <div class="stat-label">Total Income</div>
+          <div class="stat-val" id="total-income">₹0</div>
+          <div class="stat-change" id="income-count">0 transactions</div>
+        </div>
+        <div class="stat-card expense-card">
+          <div class="stat-label">Total Expenses</div>
+          <div class="stat-val" id="total-expense">₹0</div>
+          <div class="stat-change" id="expense-count">0 transactions</div>
+        </div>
+        <div class="stat-card balance-card">
+          <div class="stat-label">Net Balance</div>
+          <div class="stat-val" id="net-balance">₹0</div>
+          <div class="stat-change" id="savings-rate">0% savings rate</div>
+        </div>
+        <div class="stat-card budget-card">
+          <div class="stat-label">Budget Used</div>
+          <div class="stat-val" id="budget-used-pct">0%</div>
+          <div class="stat-change" id="budget-remain">₹0 remaining</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card wide">
+          <div class="chart-title">Income vs Expense — Monthly</div>
+          <canvas id="bar-chart" height="110"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Category Breakdown</div>
+          <canvas id="donut-chart" height="160"></canvas>
+          <div class="donut-legend" id="donut-legend"></div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="section-title">Recent Transactions</div>
+      <div class="tx-list" id="recent-list"></div>
+    </section>
+
+    <!-- ── TRANSACTIONS TAB ── -->
+    <section class="tab" id="tab-transactions">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Transactions</h1>
+          <p class="page-sub">All your records</p>
+        </div>
+        <div class="tx-controls">
+          <select class="ctrl-select" id="filter-type">
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <select class="ctrl-select" id="filter-cat">
+            <option value="all">All Categories</option>
+          </select>
+          <input class="ctrl-input" type="text" id="search-input" placeholder="Search…"/>
+        </div>
+      </div>
+      <div class="tx-table-wrap">
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tx-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ANALYTICS TAB ── -->
+    <section class="tab" id="tab-analytics">
+      <div class="page-header">
+        <h1 class="page-title">Analytics</h1>
+      </div>
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <div class="chart-title">Spending by Category</div>
+          <canvas id="bar-cat-chart" height="180"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Income vs Expense Trend</div>
+          <canvas id="line-chart" height="180"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Top Spending Categories</div>
+          <div class="top-list" id="top-categories"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Monthly Summary</div>
+          <div class="month-summary" id="month-summary"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── BUDGET TAB ── -->
+    <section class="tab" id="tab-budget">
+      <div class="page-header">
+        <h1 class="page-title">Budget Planner</h1>
+      </div>
+      <div class="budget-layout">
+        <div class="budget-form-card">
+          <div class="chart-title">Set Monthly Budget</div>
+          <label class="form-label">Total Monthly Budget (₹)</label>
+          <input class="form-input" type="number" id="budget-input" placeholder="e.g. 50000"/>
+          <button class="btn-primary mt" id="save-budget-btn">Save Budget</button>
+
+          <div class="budget-cats" id="budget-cats">
+            <div class="chart-title mt">Category Budgets</div>
+          </div>
+        </div>
+        <div class="budget-progress-card">
+          <div class="chart-title">Budget Progress</div>
+          <div id="budget-progress-list"></div>
+          <canvas id="budget-gauge" height="200" class="mt"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── ADD TRANSACTION MODAL ── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Transaction</span>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+
+    <div class="type-toggle">
+      <button class="type-btn active" data-type="expense">Expense</button>
+      <button class="type-btn" data-type="income">Income</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="tx-desc" type="text" placeholder="e.g. Grocery shopping"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Amount (₹)</label>
+        <input class="form-input" id="tx-amount" type="number" min="1" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="tx-date" type="date"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-input" id="tx-category"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input class="form-input" id="tx-note" type="text" placeholder="Any extra detail…"/>
+    </div>
+
+    <button class="btn-primary full" id="add-tx-btn">Add Transaction</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
