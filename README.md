@@ -1,7 +1,7 @@
 # FinTrack — Expense Tracker & Analytics Dashboard
    
 A professional-grade personal finance tracker built with pure HTML, CSS, and JavaScript. No frameworks, no backend — runs entirely in the browser.
-
+ 
 ## Features
 
 - **Dashboard** — Income vs Expense summary cards, monthly bar chart, category donut chart, recent transactions
